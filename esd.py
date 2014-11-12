@@ -3,12 +3,8 @@
 @author: Nikos Alexandris| Created on Wed Nov 12 16:22:18 2014
 """
 
-
 """
 Calculating Earth - Sun Distance
-
-Aquisition Time ->  Julian Day -> Earth-Sun Distance
-
 Source: "Radiometric Use of QuickBird Imagery. Technical Note". 2005-11-07,
 Keith Krause
 """
@@ -26,8 +22,10 @@ The acquisition time in .IMD files, uses the UTC time format:
 
 
 def extract_time_elements(utc):
+    """Function extracting Year, Month, Day, Hours, Minutes, Seconds from
+    UTC formatted time string
+    """
     at = {}
-    # extract Year, Month, Day, Hours, Minutes, Seconds from UTC string
     at['year'] = int(utc[:4])
     # Modify for Jan, Feb ---------------------------------------------------
     at['month'] = int(utc[5:7])
@@ -44,30 +42,34 @@ def extract_time_elements(utc):
 
 
 def universal_time(hh, mm, ss):
+    """Function converting hh:mm:ss to Universal Time"""
     ut = int(hh) + (int(mm) / 60.) + (float(ss) / 3600.)
     return ut
 
 
 def julian_day(year, month, day, ut):
+    """Function converting YYYY, MM, DD, UT to Julian Day"""
+        
+    # get B for Julian Day equation
+    A = int(year / 100)
+    B = 2 - A + int(A / 4)
 
-        # get B for Julian Day equation
-        A = int(year / 100)
-        B = 2 - A + int(A / 4)
-
-        jd = int(365.25 * (year + 4716)) + \
-        int(30.6001 * (month + 1)) + \
-        day + ut/24.0 + \
-        B - 1525.5
-        return float(jd)
+    jd = int(365.25 * (year + 4716)) + \
+    int(30.6001 * (month + 1)) + \
+    day + ut/24.0 + \
+    B - 1525.5
+    return float(jd)
 
 
-def jd_to_esd(jd):  # Earth-Sun distance (U.S. Naval Observatory)
+def jd_to_esd(jd):
+    """Function converting Julian Day to Earth-Sun distance
+    (U.S. Naval Observatory)"""
     D = jd - 2451545.0
     g = 357.529 + 0.98560028 * D
     gr = math.radians(g)
     dES = 1.00014 - 0.01671 * math.cos(gr) - 0.00014 * math.cos(2 * gr)
-    # check validity - maybe not necessary!
-    if 0.983 <= dES <= 1.017:
+
+    if 0.983 <= dES <= 1.017:  # check validity - not really necessary!
         return dES
     else:
         msg = "The result is an invalid Earth-Sun distance. "
@@ -75,7 +77,8 @@ def jd_to_esd(jd):  # Earth-Sun distance (U.S. Naval Observatory)
         raise ValueError(msg)
 
 
-def utc_to_esd(utc): 
+def utc_to_esd(utc):
+    """Function converting UTC to Earth-Sun distance"""
     at = extract_time_elements(utc)
     ut = universal_time(at['hours'], at['minutes'], at['seconds'])
     jd = julian_day(at['year'], at['month'], at['day'], ut)
@@ -84,6 +87,8 @@ def utc_to_esd(utc):
 
 
 class AcquisitionTime:
+    """Create an Acquisition Time object.
+    To be used for... i.X.toar grass-gis python scripts"""
     def __init__(self, utc):
         self.utc = utc
         self.at = extract_time_elements(self.utc)
