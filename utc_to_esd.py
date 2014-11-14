@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-@author: Nikos Alexandris| Created on Wed Nov 12 16:22:18 2014
+@author: Nikos Alexandris | Trikala, Wed Nov 12 16:22:18 2014
 """
 
 """
-Calculating Earth - Sun Distance
-Source: "Radiometric Use of QuickBird Imagery. Technical Note". 2005-11-07,
-Keith Krause
+Code for the creation of an AcquisitionTime (python Class) object.
+The Earth - Sun Distance is calculated and stored as an attribute of
+the AcquisitionTime (python Class) object.
+
+Source of Equations: "Radiometric Use of QuickBird Imagery. Technical Note".
+2005-11-07, Keith Krause.
 """
 
 import math
@@ -22,9 +25,9 @@ The acquisition time in .IMD files, uses the UTC time format:
 
 
 def extract_time_elements(utc):
-    """Function extracting Year, Month, Day, Hours, Minutes, Seconds from
-    UTC formatted time string
-    """
+    """Extracting Year, Month, Day, Hours, Minutes, Seconds from a
+    UTC formatted time string in a new dictionary, named 'at'
+    (as in 'acquisition time')"""
     at = {}
     at['year'] = int(utc[:4])
     # Modify for Jan, Feb ---------------------------------------------------
@@ -49,15 +52,16 @@ def universal_time(hh, mm, ss):
 
 def julian_day(year, month, day, ut):
     """Function converting YYYY, MM, DD, UT to Julian Day"""
-        
+
     # get B for Julian Day equation
     A = int(year / 100)
     B = 2 - A + int(A / 4)
 
+    # calculate Julian Day
     jd = int(365.25 * (year + 4716)) + \
-    int(30.6001 * (month + 1)) + \
-    day + ut/24.0 + \
-    B - 1525.5
+        int(30.6001 * (month + 1)) + \
+        day + ut/24.0 + \
+        B - 1525.5
     return float(jd)
 
 
@@ -87,8 +91,9 @@ def utc_to_esd(utc):
 
 
 class AcquisitionTime:
-    """Create an Acquisition Time object.
-    To be used for... i.X.toar grass-gis python scripts"""
+    """Create an Acquisition Time object from a UTC string
+    (of the form: YYYY_MM_DDThh:mm:ss:ddddddZ;).
+    Meant to be used for... i.X.toar grass-gis python scripts"""
     def __init__(self, utc):
         self.utc = utc
         self.at = extract_time_elements(self.utc)
@@ -112,17 +117,20 @@ class AcquisitionTime:
 #        "Earth-Sun Distance: " + str(self.esd)
 
 
-# Exemplifying
-#utc = '2014_11_12T16:47:08.000000Z;'
-#utc_to_esd(utc)
-#utcstamp = utc_to_esd(utc) ; print "UTC Stamp: ", utcstamp
-#print utc_to_esd('2014_11_12T16:47:08.000000Z;')
-
+"""Exemplifying"""
 
 """
-...example, the QuickBird launch date of:
-October 18, 2001 at 18:51:26 GMT corresponds to the
-Julian Day 2452201.286.
+utc = '2014_11_12T16:47:08.000000Z;'
+utc_to_esd(utc)
+utcstamp = utc_to_esd(utc) ; print "UTC Stamp: ", utcstamp
+print utc_to_esd('2014_11_12T16:47:08.000000Z;')
 """
-#utc_to_esd('2001_10_18T18:51:26.000000Z;')
-#print "Conversion: ", utc_to_esd('2001_10_18T18:51:26.000000Z;')
+
+"""Example (from Krause, 2005), the QuickBird launch date of:
+ October 18, 2001 at 18:51:26 GMT corresponds to the
+ Julian Day 2452201.286."""
+
+"""
+utc_to_esd('2001_10_18T18:51:26.000000Z;')
+print "Conversion: ", utc_to_esd('2001_10_18T18:51:26.000000Z;')
+"""
