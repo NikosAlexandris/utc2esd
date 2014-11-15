@@ -26,22 +26,22 @@ The acquisition time in .IMD files, uses the UTC time format:
 
 def extract_time_elements(utc):
     """Extracting Year, Month, Day, Hours, Minutes, Seconds from a
-    UTC formatted time string in a new dictionary, named 'acq_tim'
+    UTC formatted time string in a new dictionary, named 'acq_utc'
     (as in 'acquisition time')"""
-    acq_tim = {}
-    acq_tim['year'] = int(utc[:4])
+    acq_utc = {}
+    acq_utc['year'] = int(utc[:4])
     # Modify for Jan, Feb ---------------------------------------------------
-    acq_tim['month'] = int(utc[5:7])
-    if acq_tim['month'] in (1, 2):
-        acq_tim['year'] -= 1
-        acq_tim['month'] += 12
+    acq_utc['month'] = int(utc[5:7])
+    if acq_utc['month'] in (1, 2):
+        acq_utc['year'] -= 1
+        acq_utc['month'] += 12
         print "* Modification applied for January or February"
     # -----------------------------------------------------------------------
-    acq_tim['day'] = int(utc[8:10])
-    acq_tim['hours'] = int(utc[11:13])
-    acq_tim['minutes'] = int(utc[14:16])
-    acq_tim['seconds'] = float(utc[17:26])
-    return acq_tim
+    acq_utc['day'] = int(utc[8:10])
+    acq_utc['hours'] = int(utc[11:13])
+    acq_utc['minutes'] = int(utc[14:16])
+    acq_utc['seconds'] = float(utc[17:26])
+    return acq_utc
 
 
 def universal_time(hh, mm, ss):
@@ -96,13 +96,13 @@ class AcquisitionTime:
     Meant to be used for... i.X.toar grass-gis python scripts"""
     def __init__(self, utc):
         self.utc = utc
-        self.acq_tim = extract_time_elements(self.utc)
-        self.year = self.acq_tim['year']
-        self.month = self.acq_tim['month']
-        self.day = self.acq_tim['day']
-        self.hours = self.acq_tim['hours']
-        self.minutes = self.acq_tim['minutes']
-        self.seconds = self.acq_tim['seconds']
+        self.acq_utc = extract_time_elements(self.utc)
+        self.year = self.acq_utc['year']
+        self.month = self.acq_utc['month']
+        self.day = self.acq_utc['day']
+        self.hours = self.acq_utc['hours']
+        self.minutes = self.acq_utc['minutes']
+        self.seconds = self.acq_utc['seconds']
 
         self.ut = universal_time(self.hours, self.minutes, self.seconds)
         self.jd = julian_day(self.year, self.month, self.day, self.ut)
